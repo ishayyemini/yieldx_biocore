@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 import 'package:wifi_iot/wifi_iot.dart';
 
@@ -12,30 +13,40 @@ class WebPage extends StatefulWidget {
 }
 
 class _WebPageState extends State<WebPage> {
+  final String url = '192.168.4.1';
+
   bool _isLoading = true;
-  bool _isConnected = false;
   bool _isError = false;
+  bool _isFinishedConfig = false;
 
   WebViewController controller = WebViewController()
-    ..setJavaScriptMode(JavaScriptMode.unrestricted)
-    ..loadRequest(Uri.parse('http://192.168.4.1'));
+    ..setJavaScriptMode(JavaScriptMode.unrestricted);
 
   @override
   void initState() {
-    WiFiForIoTPlugin.findAndConnect(widget.ssid, password: 'YieldXadmin')
-        .then((_) => WiFiForIoTPlugin.forceWifiUsage(true))
-        .then((_) => setState(() => _isConnected = true))
-        .catchError((_) => setState(() => _isError = true));
     controller.setNavigationDelegate(
       NavigationDelegate(
-        onPageStarted: (_) => setState(() => _isConnected = false),
-        onWebResourceError: (_) => setState(() {
-          _isConnected = false;
-          _isError = true;
+        onPageFinished: (_) => setState(() {
+          _isLoading = false;
+          controller.getTitle().then((value) {
+            if (value != null && value.startsWith(url)) {
+              _isFinishedConfig = true;
+              if (value.contains('Done')) {
+                Fluttertoast.showToast(
+                  msg: 'Configuration finished successfully',
+                );
+                Navigator.pop(context);
+              }
+            }
+          });
         }),
-        onPageFinished: (_) => setState(() => _isLoading = false),
       ),
     );
+
+    WiFiForIoTPlugin.findAndConnect(widget.ssid, password: 'YieldXadmin')
+        .then((_) => WiFiForIoTPlugin.forceWifiUsage(true))
+        .then((_) => controller.loadRequest(Uri.parse('http://$url')))
+        .catchError((_) => setState(() => _isError = true));
 
     super.initState();
   }
@@ -47,15 +58,36 @@ class _WebPageState extends State<WebPage> {
         title: Text(widget.ssid.length > 15
             ? 'Manage ${widget.ssid.substring(15)} Settings'
             : 'Manage Settings'),
+        centerTitle: true,
+        elevation: 6.0,
       ),
       body: !_isError
           ? Stack(
               children: [
-                _isConnected
-                    ? WebViewWidget(
-                        controller: controller,
-                      )
-                    : const SizedBox(),
+                !_isFinishedConfig || _isLoading
+                    ? WebViewWidget(controller: controller)
+                    : Center(
+                        child: Card(
+                          child: Container(
+                            padding: const EdgeInsets.all(24.0),
+                            child: Column(
+                              mainAxisSize: MainAxisSize.min,
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              children: [
+                                Text(
+                                  'Finished configuration',
+                                  style: Theme.of(context).textTheme.titleLarge,
+                                ),
+                                const SizedBox(height: 24.0),
+                                FilledButton(
+                                  onPressed: () => Navigator.pop(context),
+                                  child: const Text('Go Back'),
+                                )
+                              ],
+                            ),
+                          ),
+                        ),
+                      ),
                 _isLoading
                     ? Center(
                         child: Card(
@@ -67,8 +99,7 @@ class _WebPageState extends State<WebPage> {
                               children: [
                                 Text(
                                   'Connecting...',
-                                  style:
-                                      Theme.of(context).textTheme.titleMedium,
+                                  style: Theme.of(context).textTheme.titleLarge,
                                 ),
                                 const SizedBox(
                                   height: 24.0,
