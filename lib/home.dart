@@ -135,94 +135,75 @@ class ListCards extends StatelessWidget {
             case ConnectionState.none:
             case ConnectionState.done:
             case ConnectionState.waiting:
-              return Center(
-                child: Card(
-                  margin: const EdgeInsets.all(24.0),
-                  elevation: 0,
-                  color: Theme.of(context).colorScheme.primaryContainer,
-                  child: Padding(
-                    padding: const EdgeInsets.all(24.0),
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Text(
-                          'Searching for devices...',
-                          textAlign: TextAlign.center,
-                          style: Theme.of(context)
-                              .textTheme
-                              .titleLarge
-                              ?.copyWith(
-                                  color: Theme.of(context)
-                                      .colorScheme
-                                      .onPrimaryContainer),
-                        ),
-                        const SizedBox(height: 24.0),
-                        CircularProgressIndicator(
-                          color:
-                              Theme.of(context).colorScheme.onPrimaryContainer,
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              );
+              return const LoadingList();
             case ConnectionState.active:
+              Iterable<WiFiAccessPoint> devices = snapshot.data!.where((item) =>
+                  item.ssid.startsWith('YieldX-BioCore') ||
+                  item.ssid.startsWith('YieldX-RedMite'));
               return GridView.count(
                 padding:
                     const EdgeInsets.symmetric(horizontal: 20, vertical: 5),
                 crossAxisSpacing: 8,
                 mainAxisSpacing: 8,
-                crossAxisCount: 2,
-                children: snapshot.data!
-                    .where((item) =>
-                        item.ssid.startsWith('YieldX-BioCore') ||
-                        item.ssid.startsWith('YieldX-RedMite'))
-                    .map((item) => Card(
-                          elevation: 0,
-                          shape: RoundedRectangleBorder(
-                            side: BorderSide(
-                              color: Theme.of(context).colorScheme.outline,
-                            ),
-                            borderRadius:
-                                const BorderRadius.all(Radius.circular(12)),
+                crossAxisCount: devices.isNotEmpty ? 2 : 1,
+                children: devices.isEmpty
+                    ? [
+                        Center(
+                          child: Text(
+                            'No devices found, pull down to refresh',
+                            textAlign: TextAlign.center,
+                            style: Theme.of(context).textTheme.titleLarge,
                           ),
-                          child: InkWell(
-                            borderRadius:
-                                const BorderRadius.all(Radius.circular(12)),
-                            onTap: () => Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => WebPage(ssid: item.ssid),
+                        )
+                      ]
+                    : devices
+                        .map((item) => Card(
+                              elevation: 0,
+                              shape: RoundedRectangleBorder(
+                                side: BorderSide(
+                                  color: Theme.of(context).colorScheme.outline,
+                                ),
+                                borderRadius:
+                                    const BorderRadius.all(Radius.circular(12)),
                               ),
-                            ),
-                            child: Center(
-                              child: Column(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  Icon(
-                                    item.ssid.startsWith(
-                                            'YieldX-BioCore') // TODO change to biocore
-                                        ? Icons.hub
-                                        : Icons.pest_control,
-                                    color:
-                                        Theme.of(context).colorScheme.primary,
-                                    size: 24.0,
+                              child: InkWell(
+                                borderRadius:
+                                    const BorderRadius.all(Radius.circular(12)),
+                                onTap: () => Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) =>
+                                        WebPage(ssid: item.ssid),
                                   ),
-                                  const SizedBox(height: 12.0),
-                                  Text(
-                                    item.ssid
-                                        .replaceAll('YieldX-RedMite_', '')
-                                        .replaceAll('YieldX-BioCore_', ''),
-                                    style:
-                                        Theme.of(context).textTheme.bodyLarge,
+                                ),
+                                child: Center(
+                                  child: Column(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      Icon(
+                                        item.ssid.startsWith('YieldX-BioCore')
+                                            ? Icons.hub
+                                            : Icons.pest_control,
+                                        color: Theme.of(context)
+                                            .colorScheme
+                                            .primary,
+                                        size: 24.0,
+                                      ),
+                                      const SizedBox(height: 12.0),
+                                      Text(
+                                        item.ssid
+                                            .replaceAll('YieldX-RedMite_', '')
+                                            .replaceAll('YieldX-BioCore_', ''),
+                                        style: Theme.of(context)
+                                            .textTheme
+                                            .bodyLarge,
+                                      ),
+                                    ],
                                   ),
-                                ],
+                                ),
                               ),
-                            ),
-                          ),
-                        ))
-                    .toList(),
+                            ))
+                        .toList(),
               );
           }
         }
@@ -278,6 +259,40 @@ class ErrorView extends StatelessWidget {
                 ),
                 onPressed: startScan,
                 child: const Text('Try again'),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class LoadingList extends StatelessWidget {
+  const LoadingList({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+      child: Card(
+        margin: const EdgeInsets.all(24.0),
+        elevation: 0,
+        color: Theme.of(context).colorScheme.primaryContainer,
+        child: Padding(
+          padding: const EdgeInsets.all(24.0),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                'Searching for devices...',
+                textAlign: TextAlign.center,
+                style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                    color: Theme.of(context).colorScheme.onPrimaryContainer),
+              ),
+              const SizedBox(height: 24.0),
+              CircularProgressIndicator(
+                color: Theme.of(context).colorScheme.onPrimaryContainer,
               ),
             ],
           ),
