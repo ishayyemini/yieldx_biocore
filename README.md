@@ -1,4 +1,4 @@
-# yieldx_biocore
+# yieldx_wifi_config
 
 A new Flutter project.
 

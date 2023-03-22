@@ -1,21 +1,20 @@
 import 'package:flutter/material.dart';
-import 'package:yieldx_biocore/home.dart';
+import 'package:yieldx_wifi_config/home.dart';
 
 void main() {
-  runApp(const BioCoreApp());
+  runApp(const WifiConfigApp());
 }
 
-class BioCoreApp extends StatelessWidget {
-  const BioCoreApp({Key? key}) : super(key: key);
+class WifiConfigApp extends StatelessWidget {
+  const WifiConfigApp({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Flutter Demo',
+      title: 'Yieldx Device Config',
       theme: ThemeData(
-        colorScheme: ColorScheme.fromSwatch(
-          primarySwatch: Colors.green,
-        ),
+        useMaterial3: true,
+        colorSchemeSeed: const Color.fromRGBO(4, 100, 164, 1),
       ),
       initialRoute: '/',
       routes: {
