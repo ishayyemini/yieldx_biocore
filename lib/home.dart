@@ -189,7 +189,15 @@ class ListCards extends StatelessWidget {
                                             .primary,
                                         size: 24.0,
                                       ),
-                                      const SizedBox(height: 12.0),
+                                      const SizedBox(height: 3.0),
+                                      Text(item.ssid
+                                              .startsWith('YieldX-BioCore')
+                                          ? 'BioCore'
+                                          : item.ssid
+                                                  .startsWith('YieldX-RedMite')
+                                              ? 'RedMite'
+                                              : ''),
+                                      const SizedBox(height: 6.0),
                                       Text(
                                         item.ssid
                                             .replaceAll('YieldX-RedMite_', '')
