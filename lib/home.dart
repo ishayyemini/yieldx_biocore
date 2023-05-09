@@ -138,8 +138,8 @@ class ListCards extends StatelessWidget {
               return const LoadingList();
             case ConnectionState.active:
               Iterable<WiFiAccessPoint> devices = snapshot.data!.where((item) =>
-                  item.ssid.startsWith('YieldX-BioCore') ||
-                  item.ssid.startsWith('YieldX-RedMite'));
+                  item.ssid.startsWith('YieldXBioCore') ||
+                  item.ssid.startsWith('YieldXRedMite'));
               return GridView.count(
                 padding:
                     const EdgeInsets.symmetric(horizontal: 20, vertical: 5),
@@ -181,7 +181,7 @@ class ListCards extends StatelessWidget {
                                     mainAxisSize: MainAxisSize.min,
                                     children: [
                                       Icon(
-                                        item.ssid.startsWith('YieldX-BioCore')
+                                        item.ssid.startsWith('YieldXBioCore')
                                             ? Icons.hub
                                             : Icons.pest_control,
                                         color: Theme.of(context)
@@ -190,18 +190,17 @@ class ListCards extends StatelessWidget {
                                         size: 24.0,
                                       ),
                                       const SizedBox(height: 3.0),
-                                      Text(item.ssid
-                                              .startsWith('YieldX-BioCore')
+                                      Text(item.ssid.startsWith('YieldXBioCore')
                                           ? 'BioCore'
                                           : item.ssid
-                                                  .startsWith('YieldX-RedMite')
+                                                  .startsWith('YieldXRedMite')
                                               ? 'RedMite'
                                               : ''),
                                       const SizedBox(height: 6.0),
                                       Text(
                                         item.ssid
-                                            .replaceAll('YieldX-RedMite_', '')
-                                            .replaceAll('YieldX-BioCore_', ''),
+                                            .replaceAll('YieldXRedMite_', '')
+                                            .replaceAll('YieldXBioCore_', ''),
                                         style: Theme.of(context)
                                             .textTheme
                                             .bodyLarge,
